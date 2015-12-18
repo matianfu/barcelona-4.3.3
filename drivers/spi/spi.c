@@ -566,18 +566,41 @@ static void spi_match_master_to_boardinfo(struct spi_master *master,
  */
 int spi_register_board_info(struct spi_board_info const *info, unsigned n)
 {
+#ifdef CONFIG_X86_INTEL_CE_GEN3
+	struct boardinfo *bi, *temp;
+#else
 	struct boardinfo *bi;
+#endif
 	int i;
 
 	if (!n)
 		return -EINVAL;
-
+#ifdef CONFIG_X86_INTEL_CE_GEN3
+	for (i = 0; i < n; i++, info++) {
+#else
 	bi = kzalloc(n * sizeof(*bi), GFP_KERNEL);
 	if (!bi)
 		return -ENOMEM;
 
 	for (i = 0; i < n; i++, bi++, info++) {
+#endif
 		struct spi_master *master;
+#ifdef CONFIG_X86_INTEL_CE_GEN3
+	    bi = kzalloc(sizeof(*bi), GFP_KERNEL);
+	    if (!bi) {
+            for( --i, --info; i >=0; i--, info--)
+	            mutex_lock(&board_lock);
+	            list_for_each_entry_safe(bi, temp, &board_list, list) {
+	                 if (!memcmp(&bi->board_info, info, sizeof(*info))) {
+	                    list_del(&bi->list);
+	                    kfree(bi);
+                        break;
+	                 }
+	            }
+	            mutex_unlock(&board_lock);
+            return -ENOMEM;
+        }
+#endif
 
 		memcpy(&bi->board_info, info, sizeof(*info));
 		mutex_lock(&board_lock);
@@ -589,6 +612,31 @@ int spi_register_board_info(struct spi_board_info const *info, unsigned n)
 
 	return 0;
 }
+#ifdef CONFIG_X86_INTEL_CE_GEN3
+EXPORT_SYMBOL_GPL(spi_register_board_info);
+
+int spi_unregister_board_info(struct spi_board_info  *info, unsigned n)
+{
+	struct boardinfo	*bi,*temp;
+	int i;
+
+	for (i = 0; i < n; i++, info++) {
+	    mutex_lock(&board_lock);
+	    list_for_each_entry_safe(bi, temp, &board_list, list) {
+	        if (!memcmp(&bi->board_info, info, sizeof(*info))) {
+	            list_del(&bi->list);
+	            kfree(bi);
+                break;
+	        }
+	    }
+	    mutex_unlock(&board_lock);
+    	}    
+	return 0;
+}
+
+EXPORT_SYMBOL_GPL(spi_unregister_board_info);
+#endif
+
 
 /*-------------------------------------------------------------------------*/
 
