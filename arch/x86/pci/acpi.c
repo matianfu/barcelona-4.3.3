@@ -19,7 +19,12 @@ struct pci_root_info {
 #endif
 };
 
+#ifdef CONFIG_X86_INTEL_CE_GEN3
+static bool pci_use_crs = false;
+#else
 static bool pci_use_crs = true;
+#endif
+
 static bool pci_ignore_seg = false;
 
 static int __init set_use_crs(const struct dmi_system_id *id)

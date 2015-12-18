@@ -482,6 +482,13 @@ config X86_INTEL_CE
 	  This option compiles in support for the CE4100 SOC for settop
 	  boxes and media devices.
 
+config X86_INTEL_CE_GEN3
+	bool "CE5300 (GEN3) platform"
+	depends on PCI
+	depends on X86_EXTENDED_PLATFORM
+	---help---
+	  Select for the Intel CE media processor (CE5300) SOC.
+
 config X86_INTEL_MID
 	bool "Intel MID platform support"
 	depends on X86_32

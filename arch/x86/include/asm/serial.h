@@ -2,6 +2,12 @@
 #define _ASM_X86_SERIAL_H
 
 /*
+ * GEN3 has high clock frequency
+ */ 
+#ifdef CONFIG_X86_INTEL_CE_GEN3
+#define BASE_BAUD (14745600/16)
+#else
+/*
  * This assumes you have a 1.8432 MHz clock for your UART.
  *
  * It'd be nice if someone built a serial card with a 24.576 MHz
@@ -9,6 +15,7 @@
  * megabits/second; but this requires a faster clock.
  */
 #define BASE_BAUD (1843200/16)
+#endif
 
 /* Standard COM flags (except for COM4, because of the 8514 problem) */
 #ifdef CONFIG_SERIAL_8250_DETECT_IRQ
