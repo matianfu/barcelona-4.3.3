@@ -539,10 +539,15 @@ static void native_machine_emergency_restart(void)
 			mach_reboot_fixups(); /* For board specific fixups */
 
 			for (i = 0; i < 10; i++) {
+#ifdef CONFIG_X86_INTEL_CE_GEN3
+				outb(0x2, 0xcf9);
+				udelay(50);
+#else
 				kb_wait();
 				udelay(50);
 				outb(0xfe, 0x64); /* Pulse reset low */
 				udelay(50);
+#endif
 			}
 			if (attempt == 0 && orig_reboot_type == BOOT_ACPI) {
 				attempt = 1;
@@ -658,6 +663,13 @@ static void native_machine_halt(void)
 
 static void native_machine_power_off(void)
 {
+#ifdef CONFIG_X86_INTEL_CE_GEN3
+	machine_shutdown();
+	while (1) {
+		outb(0x4, 0xcf9);
+		udelay(50);
+	}
+#else
 	if (pm_power_off) {
 		if (!reboot_force)
 			machine_shutdown();
@@ -665,6 +677,7 @@ static void native_machine_power_off(void)
 	}
 	/* A fallback in case there is no PM info available */
 	tboot_shutdown(TB_SHUTDOWN_HALT);
+#endif
 }
 
 struct machine_ops machine_ops = {
