@@ -52,6 +52,11 @@ Module.symvers
 /Module.markers
 
 #
+# winsun
+#
+/winsun/
+
+#
 # Debian directory (make deb-pkg)
 #
 /debian/
