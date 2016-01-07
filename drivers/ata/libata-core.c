@@ -76,6 +76,14 @@
 #include "libata.h"
 #include "libata-transport.h"
 
+#ifdef CONFIG_X86_INTEL_CE_GEN3
+
+#define LED_OFF         0x0
+#define LED_ON          0x1
+extern void iec_disk_access(int index, int act);
+
+#endif
+
 /* debounce timing parameters in msecs { interval, duration, timeout } */
 const unsigned long sata_deb_timing_normal[]		= {   5,  100, 2000 };
 const unsigned long sata_deb_timing_hotplug[]		= {  25,  500, 2000 };
@@ -4783,6 +4791,10 @@ struct ata_queued_cmd *ata_qc_new_init(struct ata_device *dev, int tag)
 
 	ata_qc_reinit(qc);
 
+#ifdef CONFIG_X86_INTEL_CE_GEN3
+    iec_disk_access(ap->scsi_host->host_no, LED_OFF);
+#endif
+
 	return qc;
 }
 
@@ -4810,6 +4822,11 @@ void ata_qc_free(struct ata_queued_cmd *qc)
 		qc->tag = ATA_TAG_POISON;
 		if (ap->flags & ATA_FLAG_SAS_HOST)
 			ata_sas_free_tag(tag, ap);
+
+#ifdef CONFIG_X86_INTEL_CE_GEN3
+    iec_disk_access(ap->scsi_host->host_no, LED_ON);
+#endif
+
 	}
 }
 

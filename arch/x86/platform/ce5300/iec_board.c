@@ -137,6 +137,7 @@ void iec_disk_access(int index, int act)
 out:
 	return;
 }
+EXPORT_SYMBOL(iec_disk_access);
 
 static ssize_t proc_board_io_write(struct file *file,
                     const char __user * buf, size_t length, loff_t * ppos)
